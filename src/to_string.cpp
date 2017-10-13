@@ -1,10 +1,15 @@
 # include "to_string.hpp"
-constexpr mdl::echar_t int_as_char[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-mdl::echar_t *mdl::to_string(uint_t __no) {
-	std::size_t len_of_int = intlen(__no);
-	echar_t *int_as_str = static_cast<echar_t *>(malloc((len_of_int + 1) * sizeof(echar_t)));
-	memset(int_as_str, '\0', (len_of_int + 1) * sizeof(echar_t));
+# include <mdl/intlen.hpp>
+# include <mdl/getdigit.hpp>
+# include <string.h>
+# include <cstdlib>
+constexpr char static int_as_char[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+char* mdl::to_string(uint_t __no) {
+	uint_t len_of_int = intlen(__no);
+	char *int_as_str = static_cast<char*>(malloc(len_of_int+1));
+	memset(int_as_str, '\0', len_of_int+1);
 
-	for (std::size_t o = 0; o != len_of_int; o ++) int_as_str[o] = int_as_char[getdigit(__no, o)];
+	uint_t i = 0;
+	for (; i != len_of_int; i ++) int_as_str[i] = int_as_char[getdigit(__no, i)];
 	return int_as_str;
 }
