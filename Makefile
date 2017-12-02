@@ -1,38 +1,56 @@
 SHELL :=/bin/bash
-DEF_INSTALL=/usr/local
-INSTALL_DIR=$(DEF_INSTALL)
+def_install_dir=/usr/local
+ifndef install_dir
+ install_dir=$(def_install_dir)
+endif
 
-NO_BINARY=false
-INC_DIR_NAME=include
+no_binary=true
+ifndef getdigit_inc_dir
+ getdigit_inc_dir=$(def_install_dir)/include
+endif
 
-GETDIGIT_INC=$(DEF_INSTALL)/$(INC_DIR_NAME)
-GETDIGIT_LIB=$(DEF_INSTALL)/lib
-INTLEN_INC=$(DEF_INSTALL)/$(INC_DIR_NAME)
-INTLEN_LIB=$(DEF_INSTALL)/lib
-MDLINT_INC=$(DEF_INSTALL)/$(INC_DIR_NAME)
+ifndef getdigit_lib_dir
+ getdigit_lib_dir=$(def_install_dir)/lib
+endif
 
-INC=-Iinc -I$(MDLINT_INC) -I$(GETDIGIT_INC) -I$(INTLEN_INC)
-LIB=-Llib -L$(GETDIGIT_LIB) -L$(INTLEN_LIB)
-ARC=ARC32
-LL=-lmdl-to_string -lmdl-getdigit -lmdl-intlen
+ifndef intlen_inc_dir
+ intlen_inc_dir=$(def_install_dir)/include
+endif
+
+ifndef intlen_lib_dir
+ intlen_lib_dir=$(def_install_dir)/lib
+endif
+
+ifndef mdlint_inc_dir
+ mdlint_inc_dir=$(def_install_dir)/include
+endif
+
+inc_flags=-Iinc -I$(mdlint_inc_dir) -I$(getdigit_inc_dir) -I$(intlen_inc_dir)
+lib_flags=-Llib -L$(getdigit_lib_dir) -L$(intlen_lib_dir)
+
+ifndef arc
+ arc=ARC32
+endif
+
+ld_flags=-lmdl-to_string -lmdl-getdigit -lmdl-intlen
 all:
-	g++ -c -std=c++11 $(INC) -D__$(ARC) -o src/to_string.o src/to_string.cpp
+	g++ -c -std=c++11 $(inc_flags) -D__$(arc) -o src/to_string.o src/to_string.cpp
 	ar rcs lib/libmdl-to_string.a src/to_string.o
 
 	cp src/to_string.hpp inc/mdl/to_string.hpp
 
-	if [ $(NO_BINARY) = false ]; then\
-		g++ -std=c++11 $(INC) $(LIB) -D__$(ARC) -o bin/to_string to_string.cpp $(LL);\
+	if [ $(no_binary) = false ]; then \
+		g++ -std=c++11 $(inc_flags) $(lib_flags) -D__$(arc) -o bin/to_string to_string.cpp $(ld_flags);\
 	fi;
 
 install:
-	cp lib/libmdl-to_string.a $(INSTALL_DIR)/lib
+	cp lib/libmdl-to_string.a $(install_dir)/lib
 
-	mkdir -p $(INSTALL_DIR)/$(INC_DIR_NAME)/mdl
-	cp src/to_string.hpp $(INSTALL_DIR)/$(INC_DIR_NAME)/mdl
+	mkdir -p $(install_dir)/include/mdl
+	cp src/to_string.hpp $(install_dir)/include/mdl
 uninstall:
-	rm -f $(INSTALL_DIR)/lib/libmdl-to_string.a
-	rm -rf $(INSTALL_DIR)/$(INC_DIR_NAME)/mdl
+	rm -f $(install_dir)/lib/libmdl-to_string.a
+	rm -rf $(install_dir)/include/mdl
 clean:
 	rm -f src/*.o
 	rm -f lib/*.a
